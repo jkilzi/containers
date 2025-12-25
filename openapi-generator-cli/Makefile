@@ -14,7 +14,11 @@ run:
 
 .PHONY: clean
 clean:
-	podman rmi $(IMAGE):$(TAG)
+	podman manifest rm $(IMAGE):$(TAG) || true
+	@DANGLING_IMAGES=$$(podman images --filter "dangling=true" --noheading --format "{{.ID}}"); \
+	if [ -n "$$DANGLING_IMAGES" ]; then \
+		podman rmi $$DANGLING_IMAGES; \
+	fi
 
 # Based on https://developers.redhat.com/articles/2023/11/03/how-build-multi-architecture-container-images
 .PHONY: create-manifest
