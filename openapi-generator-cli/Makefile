@@ -1,4 +1,3 @@
-CONTAINER_RUNTIME := $(shell command -v podman 2> /dev/null || echo docker)
 IMAGE := quay.io/jkilzi/openapi-generator-cli
 TAG := 7.18.0
 ARGS :=
@@ -11,19 +10,24 @@ generate:
 
 .PHONY: run
 run:
-	$(CONTAINER_RUNTIME) run --name openapi-generator-cli --rm -v $(PWD):/opt/app-root/src $(IMAGE):$(TAG) $(ARGS)
+	podman run --name openapi-generator-cli --rm -v $(PWD):/opt/app-root/src $(IMAGE):$(TAG) $(ARGS)
 
 .PHONY: clean
 clean:
-	$(CONTAINER_RUNTIME) rmi $(IMAGE):$(TAG)
+	podman rmi $(IMAGE):$(TAG)
+
+# Based on https://developers.redhat.com/articles/2023/11/03/how-build-multi-architecture-container-images
+.PHONY: create-manifest
+create-manifest:
+	podman manifest create $(IMAGE):$(TAG)
 
 .PHONY: build
-build:
-	$(CONTAINER_RUNTIME) build --platform linux/amd64 -t $(IMAGE):$(TAG) -f Containerfile
+build: create-manifest
+	podman build --platform linux/amd64,linux/arm64 --manifest $(IMAGE):$(TAG) -f Containerfile .
 
 .PHONY: push
 push:
-	$(CONTAINER_RUNTIME) push $(IMAGE):$(TAG)
+	podman manifest push $(IMAGE):$(TAG)
 
 .PHONY: help
 help:
@@ -37,4 +41,3 @@ help:
 	@echo "  push                    Push the OpenAPI Generator CLI container image to the registry"
 	@echo "  help                    Show this help message"
 	@echo ""
-	@echo "Container runtime: $(CONTAINER_RUNTIME)"
