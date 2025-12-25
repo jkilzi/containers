@@ -1,3 +1,7 @@
+VCS_REF := $(shell git rev-parse --short HEAD)
+BUILD_DATE := $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
+VERSION := 1.0.0
+
 IMAGE := quay.io/jkilzi/openapi-generator-cli
 TAG := 7.18.0
 ARGS :=
@@ -10,7 +14,7 @@ generate:
 
 .PHONY: run
 run:
-	podman run --name openapi-generator-cli --rm -v $(PWD):/opt/app-root/src $(IMAGE):$(TAG) $(ARGS)
+	podman run --name openapi-generator-cli --rm -v $(PWD):/opt/app-root/src/workspace $(IMAGE):$(TAG) $(ARGS)
 
 .PHONY: clean
 clean:
@@ -27,7 +31,13 @@ create-manifest:
 
 .PHONY: build
 build: create-manifest
-	podman build --platform linux/amd64,linux/arm64 --manifest $(IMAGE):$(TAG) -f Containerfile .
+	podman build \
+	--build-arg VCS_REF=$(VCS_REF) \
+	--build-arg VERSION=$(VERSION) \
+	--build-arg BUILD_DATE=$(BUILD_DATE) \
+	--manifest $(IMAGE):$(TAG) \
+	--platform linux/amd64,linux/arm64 \
+	-f Containerfile .
 
 .PHONY: push
 push:

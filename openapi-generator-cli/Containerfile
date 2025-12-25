@@ -1,5 +1,18 @@
 FROM registry.access.redhat.com/ubi9/nodejs-22-minimal:9.7
 
+ARG VCS_REF=unknown
+ARG VERSION=latest
+ARG BUILD_DATE=unknown
+
+LABEL org.opencontainers.image.revision="${VCS_REF}"
+LABEL org.opencontainers.image.version="${VERSION}"
+LABEL org.opencontainers.image.created="${BUILD_DATE}"
+LABEL org.opencontainers.image.title="openapi-generator-cli"
+LABEL org.opencontainers.image.description="OpenAPI Generator CLI container image"
+LABEL org.opencontainers.image.authors="Jonathan Kilzi <jkilzi@redhat.com>"
+LABEL org.opencontainers.image.source="https://github.com/jkilzi/containers"
+LABEL org.opencontainers.image.url="https://github.com/jkilzi/containers/openapi-generator-cli"
+
 USER root
 
 RUN microdnf install -y java-17-openjdk-headless && microdnf clean all
@@ -8,6 +21,6 @@ USER 1001
 
 RUN npm i -g @openapitools/openapi-generator-cli && openapi-generator-cli version-manager set 7.18.0
 
-WORKDIR /opt/app-root/src
+WORKDIR /opt/app-root/src/workspace
 
 ENTRYPOINT ["openapi-generator-cli"]
