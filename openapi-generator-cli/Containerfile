@@ -1,8 +1,8 @@
-FROM registry.access.redhat.com/ubi9/nodejs-22:9.7
+FROM registry.access.redhat.com/ubi9/nodejs-22-minimal:9.7
 
 USER root
 
-RUN dnf install -y java-17-openjdk-headless && dnf clean all
+RUN microdnf install -y java-17-openjdk-headless && microdnf clean all
 
 USER 1001
 

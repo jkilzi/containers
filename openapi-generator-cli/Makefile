@@ -1,5 +1,5 @@
 CONTAINER_RUNTIME := $(shell command -v podman 2> /dev/null || echo docker)
-IMAGE := jkilzi/openapi-generator-cli
+IMAGE := quay.io/jkilzi/openapi-generator-cli
 TAG := 7.18.0
 ARGS :=
 
@@ -19,7 +19,7 @@ clean:
 
 .PHONY: build
 build:
-	$(CONTAINER_RUNTIME) build -t $(IMAGE):$(TAG) -f Containerfile
+	$(CONTAINER_RUNTIME) build --platform linux/amd64 -t $(IMAGE):$(TAG) -f Containerfile
 
 .PHONY: push
 push:
